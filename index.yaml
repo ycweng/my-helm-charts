@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  jenkins:
+  - apiVersion: v2
+    appVersion: jenkins-lts
+    created: "2024-12-19T07:12:42.300615344Z"
+    description: A Helm chart for Kubernetes maintained by randolph
+    digest: f9f0a4c16cb8e86af2360aac22d3666076a8f2dccfb3b01e9ac4ed63feaf8b06
+    name: jenkins
+    type: application
+    urls:
+    - https://github.com/ycweng/my-helm-charts/releases/download/jenkins-0.1.0/jenkins-0.1.0.tgz
+    version: 0.1.0
+generated: "2024-12-19T07:12:42.300826728Z"
