@@ -17,12 +17,16 @@ spec:
         fsGroup: 1000 
         runAsUser: 1000
       serviceAccountName: {{ .Release.Name }}-admin
+      {{- if .Values.nodeSelector }}
       nodeSelector:
         {{- range $key, $value := .Values.nodeSelector }}
         {{ $key }}: {{ $value | quote }}
         {{- end }}
+      {{- end }}
+      {{- if .Values.tolerations }}
       tolerations:
         {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
       containers:
         - name: jenkins
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
