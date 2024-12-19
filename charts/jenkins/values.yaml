@@ -1,0 +1,38 @@
+replicaCount: 1
+namespace: jenkins
+image:
+  repository: jenkins/jenkins
+  tag: lts
+  pullPolicy: IfNotPresent
+resources:
+  limits:
+    memory: "2Gi"
+    cpu: "1000m"
+  requests:
+    memory: "500Mi"
+    cpu: "500m"
+#serviceAccount:
+#  name: jenkins-admin
+prefixPath: /jenkins
+volume:
+  mount:
+    path: /data/jenkins
+  requests:
+    storage: 5Gi
+  name: jenkins-data
+  mountPath: /var/jenkins_home
+  #claimName: jenkins-pv-claim
+nodeSelector: 
+  server-type: jenkins
+tolerations: 
+  - key: "server-type"
+    operator: "Equal"
+    value: "jenkins"
+    effect: "NoSchedule"
+ports:
+  - name: httpport
+    containerPort: 8080
+  - name: jnlpport
+    containerPort: 50000
+workerNode: cps-kernel-k8s-jenkins-10-100-54-21
+adminPassword: "jenkins@rd2024"

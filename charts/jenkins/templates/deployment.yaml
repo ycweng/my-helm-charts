@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      securityContext:
+        fsGroup: 1000 
+        runAsUser: 1000
+      serviceAccountName: {{ .Release.Name }}-admin
+      nodeSelector:
+        {{- range $key, $value := .Values.nodeSelector }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      containers:
+        - name: jenkins
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            limits:
+              memory: {{ .Values.resources.limits.memory }}
+              cpu: {{ .Values.resources.limits.cpu }}
+            requests:
+              memory: {{ .Values.resources.requests.memory }}
+              cpu: {{ .Values.resources.requests.cpu }}
+          env:
+            - name: JENKINS_OPTS
+              value: '--prefix={{ .Values.prefixPath }}'
+            - name: TZ
+              value: Asia/Taipei
+          ports:
+          {{- range .Values.ports }}
+            - name: {{ .name }}
+              containerPort: {{ .containerPort }}
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: "{{ .Values.prefixPath }}/login"
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: "{{ .Values.prefixPath }}/login"
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: {{ .Values.volume.name }}
+              mountPath: {{ .Values.volume.mountPath }}
+      volumes:
+        - name: {{ .Values.volume.name }}
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pv-claim
+
